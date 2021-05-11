@@ -4,7 +4,7 @@ Participants:
 Nguyen Mau Trong Hieu - Huynh Ngoc Tan
 
 Presentation:
-https://drive.google.com/file/d/1zHAI9XRk8Kbubr8N2w98D85NOd7tj3GK/view?fbclid=IwAR0tXEzG5Iz_3kiNPPqG8AbjoUjcDAwbdtR6b4KiHXE3VrDyzRIMkyen08o
+https://drive.google.com/file/d/15d23Md-SMNjTTmuoUCUrW_i-BVO-PIf2/view?usp=sharing
 
 We have inferred 2 videos:
 
