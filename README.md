@@ -2,6 +2,6 @@
 KO - Hackathon
 
 Participants:
-Nguyen Mau Trong Hieu - Huynh Viet Tan
+Nguyen Mau Trong Hieu - Huynh Ngoc Tan
 
 
