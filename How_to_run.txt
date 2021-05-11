@@ -1,0 +1,27 @@
+Deme Video 1:
+https://youtu.be/FgoyfaOtN_Y
+
+Demo Video 2:
+https://youtu.be/m7b-2d0ML5o
+
+First, open command line
+
+You need to change directory to folder koh_v1olet 
+
+Download library thing:
+
+pip install -r requirements.txt
+
+Put the video/image you want to detect into folder DETECT_THIS_FOLDER 
+
+To detect, copy and pass this line to command line:
+
+# CPU inference
+
+python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou 0.45 --save-txt --exist-ok --source DETECT_THIS_FOLDER
+
+# GPU inference - if you don't have the gpu or right driver version --> use CPU
+
+python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou 0.45 --save-txt --exist-ok --source DETECT_THIS_FOLDER --device 0
+
+# Result will be in runs\detect\exp
