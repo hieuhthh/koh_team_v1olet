@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 Put the video/image you want to detect into folder **DETECT_THIS_FOLDER** 
 
-To detect, copy and pass one of these lines to command line:
+To detect, copy and paste one of these lines to command line:
 
 # CPU inference
 
