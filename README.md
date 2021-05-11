@@ -36,6 +36,7 @@ python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou
 python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou 0.45 --save-txt --exist-ok --source DETECT_THIS_FOLDER --device 0
 
 **Result will be in runs\detect\exp**
+**YOLO FORMAT**
 
 **CLASSES IN LABELS**
 
