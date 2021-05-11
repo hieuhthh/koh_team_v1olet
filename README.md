@@ -37,6 +37,15 @@ python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou
 
 **Result will be in runs\detect\exp**
 
+**CLASSES IN LABELS**
+
+0 - BOX
+1 - PERSON
+2 - FIRE
+3 - DOG
+4 - CAT
+5 - ANOMALY (DROPPED BOX)
+
 **REFERENCE**
 
 https://github.com/ultralytics/yolov5
