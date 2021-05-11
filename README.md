@@ -15,7 +15,7 @@ https://youtu.be/m7b-2d0ML5o
 
 Open command line
 
-You need to change directory to folder koh_team_v1olet 
+You need to change directory to this folder 
 
 Download library thing:
 
