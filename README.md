@@ -22,21 +22,17 @@ Open command line
 
 You need to change directory to this folder 
 
-Download library thing:
+# Download library thing:
 
 pip install -r requirements.txt
 
-Put the video/image you want to detect into folder **DETECT_THIS_FOLDER** 
-
 To detect, copy and paste one of these lines to command line:
 
-# CPU inference
+# Inference
 
-python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou 0.45 --save-txt --exist-ok --source DETECT_THIS_FOLDER
+python detect.py
 
-# GPU inference - faster - if you don't have the gpu or right driver version --> use CPU inference
-
-python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou 0.45 --save-txt --exist-ok --source DETECT_THIS_FOLDER --device 0
+Then write the path to video.
 
 **Result will be in runs\detect\exp**
 
@@ -55,6 +51,8 @@ python detect.py --weights koh_model_detect_box_v2.pt --img 640 --conf 0.5 --iou
 4 - CAT
 
 5 - ANOMALY (DROPPED BOX)
+
+If DROPPED BOX is TRACKED, then it will be normal box.
 
 **REFERENCE**
 

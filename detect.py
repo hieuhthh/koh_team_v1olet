@@ -20,8 +20,12 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized
 
+def Dis(a, b):
+    return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
 # Bisect
 IMSIZE = 224
+tan = 5.2
 bias = [[0, 0, 0, IMSIZE], [IMSIZE, 0, IMSIZE, IMSIZE],
         [0, 0, IMSIZE, 0], [0, IMSIZE, IMSIZE, IMSIZE],
         [0, 0, IMSIZE, IMSIZE], [0, IMSIZE, IMSIZE, 0]]
@@ -106,20 +110,12 @@ def window(src):
         vanishing_point = intersect(slanting_lines)
 
         #find keyzone
-        #keyzone = find_keyzone(vanishing_point, vertical_lines, horizontal_lines)
+        keyzone = find_keyzone(vanishing_point, vertical_lines, horizontal_lines)
 
-        #draw
-
-        # res = src.copy()
-        # res = np.zeros(src.shape)
-        # draw_lines(res, vertical_lines)
-        # draw_lines(res, vertical_lines)
-        # draw_lines(res, horizontal_lines)
-
-        return vanishing_point
+        return vanishing_point, keyzone
     
     except Exception as error:
-        return (112, 112)
+        return (112, 112), (102, 102, 122, 122)
 
 
 
@@ -165,20 +161,48 @@ def detect(opt):
 
     # Get names and colors
     names = model.module.names if hasattr(model, 'module') else model.names
-#     colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
-    colors = [[0, 255, 0], [255, 0, 0], [204, 204, 0], [178, 102, 255], [255, 102, 178], [204, 229, 255], [0, 0, 255]]
+    colors = [[0, 255, 0], [255, 0, 0], [204, 204, 0], [178, 102, 255], [255, 102, 178], [204, 229, 255], [0, 0, 255], [187, 174, 252]]
 
     # Run inference
     if device.type != 'cpu':
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
     t0 = time.time()
     
+    preAno = []
+    curAno = []
+    corner = 0
+    
     for path, img, im0s, vid_cap in dataset:
+
+
+        if corner > 0:
+            corner -= 1
+            
+            p, s, im0, frame = path, '', im0s.copy(), getattr(dataset, 'frame', 0)
+            if save_img:
+                if dataset.mode == 'image':
+                    cv2.imwrite(save_path, im0)
+                else:  # 'video' or 'stream'
+                    if vid_path != save_path:  # new video
+                        vid_path = save_path
+                        if isinstance(vid_writer, cv2.VideoWriter):
+                            vid_writer.release()  # release previous video writer
+                        if vid_cap:  # video
+                            fps = vid_cap.get(cv2.CAP_PROP_FPS)
+                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                            h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                        else:  # stream
+                            fps, w, h = 30, im0.shape[1], im0.shape[0]
+                            save_path += '.mp4'
+                        vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                    vid_writer.write(im0)
+                    
+            continue
+        
         
         image = img.copy()
         image = np.transpose(image, (1, 2, 0))
-        xxx = image.copy()
-        vanishing_point = window(image)
+        vanishing_point, keyzone = window(image)
         
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
@@ -217,11 +241,6 @@ def detect(opt):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
                 
-                # Print results
-                for c in det[:, -1].unique():
-                    n = (det[:, -1] == c).sum()  # detections per class
-                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     
@@ -241,26 +260,61 @@ def detect(opt):
                     
                     else: # box
                         
-                        anomalyBox = False
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         
+                        if abs(xywh[0] - 0.5) < 0.3 and xywh[1] < 0.6:
+                            continue
+                        
+                        anomalyBox = False
+                    
+                    
                         # Detect Anomaly Box
-                        if abs(xywh[0] - vanishing_point[0] / 224.0) < 0.13 * xywh[1]:
+                        
+                        xl = xywh[1] / tan + keyzone[0] / 224.0 + 0.03
+                        xr = keyzone[2] / 224.0 - xywh[1] / tan - 0.03
+    
+                        if xywh[0] > xl and xywh[0] < xr:
                             anomalyBox = True
-                        
-                        
+        
                         if anomalyBox == True:
-                            if save_txt:  # Write to file
-                                line = (5., *xywh, conf) if opt.save_conf else (5., *xywh)  # label format
-                                with open(txt_path + '.txt', 'a') as f:
-                                    f.write(('%g ' * len(line)).rstrip() % line + '\n')
+                        
+                            curBox = xywh.copy()
+                            curAno.append(curBox)
+        
+                            tracked = False
+            
+                            for preBox in preAno:
+                                if Dis(curBox, preBox) < 0.17:
+                                    tracked = True
+                                    break
+                            
+                            if tracked:
+                                if save_txt:  # Write to file
+                                    line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
+                                    with open(txt_path + '.txt', 'a') as f:
+                                        f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
-                            if save_img or opt.save_crop or view_img:  # Add bbox to image
-                                c = 6  # integer class
-                                label = f'DroppedBox {conf:.2f}' if opt.save_conf_plt else 'DroppedBox'
-                                plot_one_box(xyxy, im0, label=label, color=colors[c], line_thickness=2)
-                                if opt.save_crop:
-                                    save_one_box(xyxy, im0s, file=save_dir / 'crops' / 'DroppedBox' / f'{p.stem}.jpg', BGR=True)
+                                if save_img or opt.save_crop or view_img:  # Add bbox to image
+                                    c = 7  # integer class
+                                    label = f'Tracked {conf:.2f}' if opt.save_conf_plt else f'Tracked'
+                                    plot_one_box(xyxy, im0, label=label, color=colors[c], line_thickness=2)
+                                    if opt.save_crop:
+                                        save_one_box(xyxy, im0s, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
+                                
+                            else: 
+                                
+                                if save_txt:  # Write to file
+                                    line = (5., *xywh, conf) if opt.save_conf else (5., *xywh)  # label format
+                                    with open(txt_path + '.txt', 'a') as f:
+                                        f.write(('%g ' * len(line)).rstrip() % line + '\n')
+
+                                if save_img or opt.save_crop or view_img:  # Add bbox to image
+                                    c = 6  # integer class
+                                    label = f'DroppedBox {conf:.2f}' if opt.save_conf_plt else 'DroppedBox'
+                                    plot_one_box(xyxy, im0, label=label, color=colors[c], line_thickness=2)
+                                    if opt.save_crop:
+                                        save_one_box(xyxy, im0s, file=save_dir / 'crops' / 'DroppedBox' / f'{p.stem}.jpg', BGR=True)
+                                        
                         else:
                             if save_txt:  # Write to file
                                 line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
@@ -273,6 +327,15 @@ def detect(opt):
                                 plot_one_box(xyxy, im0, label=label, color=colors[c], line_thickness=2)
                                 if opt.save_crop:
                                     save_one_box(xyxy, im0s, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
+               
+               
+            # no det == corner
+            else: 
+                corner = 30               
+            # Reset Save Ano Box
+            preAno = curAno.copy()
+            curAno = []          
+
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({t2 - t1:.3f}s)')
@@ -331,7 +394,14 @@ if __name__ == '__main__':
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--save-conf-plt', default=False, action='store_true', help='plot image with confidences')
-    opt = parser.parse_args()
+    
+    weight_dir = 'best.pt'
+    
+    test_dir = input('Path to video: ')
+    
+    opt = parser.parse_args(['--weights', weight_dir, '--img', '640', '--conf', '0.5', 
+                             '--iou', '0.5', '--source', test_dir, '--save-txt', '--exist-ok'])
+    
     print(opt)
     check_requirements(exclude=('pycocotools', 'thop'))
 
