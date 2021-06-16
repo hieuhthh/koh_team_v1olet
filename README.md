@@ -33,6 +33,11 @@ To detect, copy and paste one of these lines to command line:
 python detect.py
 
 Then write the path to video.
+Example: 
+
+E:\KOH\Robot_View\VID_20201222_141801.mp4
+
+DETECT_THIS_FOLDER
 
 **Result will be in runs\detect\exp**
 
