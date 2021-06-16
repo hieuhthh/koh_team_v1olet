@@ -26,11 +26,10 @@ You need to change directory to this folder
 
 pip install -r requirements.txt
 
-To detect, copy and paste one of these lines to command line:
-
-# Inference
+# Inference - To detect, copy and paste this line to command line:
 
 python detect.py
+
 
 Then write the path to video.
 Example: 
