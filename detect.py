@@ -115,7 +115,8 @@ def window(src):
         return vanishing_point, keyzone
     
     except Exception as error:
-        return (112, 112), (102, 102, 122, 122)
+        # return (112, 112), (112, 112, 112, 112)
+        return None, None
 
 
 
@@ -128,7 +129,7 @@ def detect(opt):
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
 
     # Directories
-    save_dir = increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok)  # increment run
+    save_dir = increment_path(Path('DETECT') / opt.name, exist_ok=opt.exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
     # Initialize
@@ -266,15 +267,18 @@ def detect(opt):
                             continue
                         
                         anomalyBox = False
-                    
-                    
-                        # Detect Anomaly Box
+                   
                         
-                        xl = xywh[1] / tan + keyzone[0] / 224.0 + 0.03
-                        xr = keyzone[2] / 224.0 - xywh[1] / tan - 0.03
-    
-                        if xywh[0] > xl and xywh[0] < xr:
-                            anomalyBox = True
+                        if keyzone is None:
+                            if abs(xywh[0] - 0.5) < 0.07:
+                                anomalyBox = True
+                        else:
+                            xl = xywh[1] / tan + keyzone[0] / 224.0 + 0.035
+                            xr = keyzone[2] / 224.0 - xywh[1] / tan - 0.035
+        
+                            if xywh[0] > xl and xywh[0] < xr:
+                                anomalyBox = True
+        
         
                         if anomalyBox == True:
                         
@@ -284,7 +288,7 @@ def detect(opt):
                             tracked = False
             
                             for preBox in preAno:
-                                if Dis(curBox, preBox) < 0.17:
+                                if Dis(curBox, preBox) < 0.2:
                                     tracked = True
                                     break
                             
@@ -375,14 +379,14 @@ def detect(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='yolov5s.pt', help='model.pt path(s)')
-    parser.add_argument('--source', type=str, default='data/images', help='source')  # file/folder, 0 for webcam
+    parser.add_argument('--weights', nargs='+', type=str, default='best.pt', help='model.pt path(s)')
+    parser.add_argument('--source', type=str, default='DETECT', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
-    parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
+    parser.add_argument('--conf-thres', type=float, default=0.45, help='object confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='IOU threshold for NMS')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--view-img', action='store_true', help='display results')
-    parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
+    parser.add_argument('--save-txt', default=True, action='store_true', help='save results to *.txt')
     parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
     parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
     parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
@@ -392,15 +396,10 @@ if __name__ == '__main__':
     parser.add_argument('--update', action='store_true', help='update all models')
     parser.add_argument('--project', default='runs/detect', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
-    parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
+    parser.add_argument('--exist-ok', default=True, action='store_true', help='existing project/name ok, do not increment')
     parser.add_argument('--save-conf-plt', default=False, action='store_true', help='plot image with confidences')
     
-    weight_dir = 'best.pt'
-    
-    test_dir = input('Path to video: ')
-    
-    opt = parser.parse_args(['--weights', weight_dir, '--img', '640', '--conf', '0.5', 
-                             '--iou', '0.5', '--source', test_dir, '--save-txt', '--exist-ok'])
+    opt = parser.parse_args()
     
     print(opt)
     check_requirements(exclude=('pycocotools', 'thop'))
