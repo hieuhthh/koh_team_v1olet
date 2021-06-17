@@ -3,6 +3,9 @@
 Participants:
 Nguyen Mau Trong Hieu - Huynh Ngoc Tan
 
+Docker run:
+https://www.youtube.com/watch?v=GFRnjtjsfXA
+
 Presentation:
 https://drive.google.com/file/d/15d23Md-SMNjTTmuoUCUrW_i-BVO-PIf2/view?usp=sharing
 
@@ -14,7 +17,7 @@ https://youtu.be/FgoyfaOtN_Y
 Demo Video 2:
 https://youtu.be/m7b-2d0ML5o
 
-**HOW TO USE**
+**HOW TO USE WITH GIT**
 
 Quick Tutorial: https://youtu.be/EL_DgZFHHiI
 
@@ -65,5 +68,3 @@ https://github.com/ultralytics/yolov5
 https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html
 
 https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
-
-
