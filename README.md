@@ -9,7 +9,9 @@ https://www.youtube.com/watch?v=GFRnjtjsfXA
 Docker command:
 
 sudo docker pull hieuhthh/kohfinal:third
+
 sudo docker run hieuhthh/kohfinal:third
+
 sudo docker run -it -v /home/hieu/video:/home/DETECT hieuhthh/kohfinal:third
 
 Presentation:
