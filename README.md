@@ -14,7 +14,7 @@ sudo docker run hieuhthh/kohfinal:third
 
 sudo docker run -it -v /home/hieu/video:/home/DETECT hieuhthh/kohfinal:third
 
-Presentation:
+# Presentation:
 https://drive.google.com/drive/u/0/folders/1eFawVAtl9BKvaz0e2NA-hUv5lBR9xZd9
 
 We have inferred 2 videos:
@@ -40,16 +40,6 @@ pip install -r requirements.txt
 # Inference - To detect, copy and paste this line to command line:
 
 python detect.py
-
-
-Then write the path to video.
-Example: 
-
-E:\KOH\Robot_View\VID_20201222_141801.mp4
-
-DETECT_THIS_FOLDER
-
-**Result will be in runs\detect\exp**
 
 **YOLO FORMAT**
 
