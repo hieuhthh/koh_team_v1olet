@@ -37,7 +37,7 @@ You need to change directory to this folder
 
 pip install -r requirements.txt
 
-Put your video/image(s) into folder DETECT
+**Put your video/image(s) into folder DETECT**
 
 # Inference - To detect, copy and paste this line to command line:
 
