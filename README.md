@@ -7,7 +7,7 @@ Docker run:
 https://www.youtube.com/watch?v=GFRnjtjsfXA
 
 Presentation:
-https://drive.google.com/file/d/15d23Md-SMNjTTmuoUCUrW_i-BVO-PIf2/view?usp=sharing
+https://drive.google.com/drive/u/0/folders/1eFawVAtl9BKvaz0e2NA-hUv5lBR9xZd9
 
 We have inferred 2 videos:
 
